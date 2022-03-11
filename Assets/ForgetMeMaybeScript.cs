@@ -195,9 +195,8 @@ public class ForgetMeMaybeScript : MonoBehaviour
             {
                 yield return null;
                 elapsed += Time.deltaTime;
-                if (_currentSolves == _solveCount)
+                if (_currentSolves == _solveCount && elapsed >= 7f)
                 {
-                    yield return new WaitForSeconds(4f);
                     _inputLength = _displayedDigits.Count();
                     if (_inputLength == 0)
                     {
