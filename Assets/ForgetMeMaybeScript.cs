@@ -309,6 +309,10 @@ public class ForgetMeMaybeScript : MonoBehaviour
         }
     }
 
+#pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} press 1234567890 [Presses buttons 1234567890.] | You can use 'press' or 'submit'. Commands may contain spaces.";
+#pragma warning restore 414
+
     private IEnumerator ProcessTwitchCommand(string command)
     {
         command = command.ToLowerInvariant();
@@ -319,7 +323,7 @@ public class ForgetMeMaybeScript : MonoBehaviour
             cut = 6;
         else
         {
-            yield return "sendtochaterror Use either 'submit' or 'press' followed by a number sequence.";
+            yield return "sendtochaterror Use either 'press' or 'submit' followed by a number sequence.";
             yield break;
         }
         var digits = new List<int>();
