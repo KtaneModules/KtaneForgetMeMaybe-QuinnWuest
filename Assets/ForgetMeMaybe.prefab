@@ -750,6 +750,7 @@ GameObject:
   - component: {fileID: 114878474726435980}
   - component: {fileID: 114943422942877706}
   - component: {fileID: 114517859669022134}
+  - component: {fileID: 114639130392354270}
   m_Layer: 0
   m_Name: ForgetMeMaybe
   m_TagString: Untagged
@@ -4088,6 +4089,7 @@ MonoBehaviour:
   DisplayScreen: {fileID: 102403777888468980}
   InputScreen: {fileID: 102813267594418360}
   StageScreen: {fileID: 102374601995629716}
+  ModSettings: {fileID: 114639130392354270}
 --- !u!114 &114549298866903188
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4136,6 +4138,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - KT/Mobile/DiffuseTint
+--- !u!114 &114639130392354270
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1806336279973626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -289456416, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Settings: "{ \t \t \t\"lowerBound\": 45, \t\"upperBound\": 60, \t\"note\": \"Default:
+    45-60 seconds. If the times are equal, or the lower bound is greater than the
+    upper bound, the settings will revert to default.\" }"
+  SettingsPath: 
 --- !u!114 &114652463463533164
 MonoBehaviour:
   m_ObjectHideFlags: 1

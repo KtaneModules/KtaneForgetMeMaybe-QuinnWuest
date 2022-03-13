@@ -6,6 +6,8 @@ using UnityEngine;
 using KModkit;
 using Rnd = UnityEngine.Random;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using System.Reflection;
 
 public class ForgetMeMaybeScript : MonoBehaviour
 {
@@ -43,6 +45,18 @@ public class ForgetMeMaybeScript : MonoBehaviour
     private bool _isInputting;
     private bool _hereWeGo = true;
 
+    private const int _defaultLowerBound = 45;
+    private const int _defaultUpperBound = 60;
+    private float _lowerBound = _defaultLowerBound;
+    private float _upperBound = _defaultUpperBound;
+
+    public class ModSettingsJSON
+    {
+        public int lowerBound;
+        public int upperBound;
+    }
+    public KMModSettings ModSettings;
+
     private void Start()
     {
         _moduleId = _moduleIdCounter++;
@@ -59,6 +73,9 @@ public class ForgetMeMaybeScript : MonoBehaviour
             else if (_alphNum == 99)
                 _alphNum = (ch - 'A' + 1) % 10;
         }
+        var bounds = GetBounds();
+        _lowerBound = bounds[0];
+        _upperBound = bounds[1];
         StartCoroutine(Init());
     }
 
@@ -76,6 +93,7 @@ public class ForgetMeMaybeScript : MonoBehaviour
                 Debug.LogFormat("[Forget Me Maybe #{0}] Pressed a button before input was expected. Strike.", _moduleId);
                 return false;
             }
+            StageScreen.text = "--";
             if ((btn + 1) % 10 == _calculatedDigits[_inputIx])
             {
                 _inputIx++;
@@ -90,6 +108,10 @@ public class ForgetMeMaybeScript : MonoBehaviour
             }
             else
             {
+                if (_inputIx < 99)
+                    StageScreen.text = (_inputIx + 1).ToString();
+                else
+                    StageScreen.text = ((_inputIx + 1) % 100).ToString("00");
                 Module.HandleStrike();
                 LedSetup(_displayedDigits[_inputIx]);
                 Debug.LogFormat("[Forget Me Maybe #{0}] Incorrectly pressed {1} at stage {2}. Strike.", _moduleId, (btn + 1) % 10, _inputIx + 1);
@@ -187,16 +209,21 @@ public class ForgetMeMaybeScript : MonoBehaviour
 
     private IEnumerator GenerateDigits()
     {
-        while (_currentSolves != _solveCount)
+        while (true)
         {
-            var waitTime = Rnd.Range(45f, 60f);
+            var waitTime = Rnd.Range(_lowerBound, _upperBound);
             var elapsed = 0f;
             while (elapsed < waitTime)
             {
                 yield return null;
                 elapsed += Time.deltaTime;
-                if (_currentSolves == _solveCount && elapsed >= 7f)
+                if (_currentSolves == _solveCount)
                 {
+                    while (elapsed <= 7f)
+                    {
+                        yield return null;
+                        elapsed += Time.deltaTime;
+                    }
                     _inputLength = _displayedDigits.Count();
                     if (_inputLength == 0)
                     {
@@ -221,7 +248,10 @@ public class ForgetMeMaybeScript : MonoBehaviour
             int r = Rnd.Range(0, 10);
             _displayedDigits.Add(r);
             _currentStage = _displayedDigits.Count() - 1;
-            StageScreen.text = ((_currentStage + 1) % 100).ToString("00");
+            if (_currentStage < 99)
+                StageScreen.text = (_currentStage + 1).ToString();
+            else
+                StageScreen.text = ((_currentStage + 1) % 100).ToString("00");
             DisplayScreen.text = _displayedDigits[_currentStage].ToString();
             int t;
             if (_currentStage == 0)
@@ -309,6 +339,61 @@ public class ForgetMeMaybeScript : MonoBehaviour
         }
     }
 
+    private int[] GetBounds()
+    {
+        string missionId = GetMissionID();
+        if (missionId != "undefined" && missionId != "custom")
+        {
+            Debug.LogFormat("[Forget Me Maybe #{0}] Mission '{1}' detected. Using default settings.", _moduleId, missionId);
+            return new[] { _defaultLowerBound, _defaultUpperBound };
+        }
+        try
+        {
+            ModSettingsJSON settings = JsonConvert.DeserializeObject<ModSettingsJSON>(ModSettings.Settings);
+            if (settings != null)
+            {
+                if (settings.lowerBound == 0)
+                {
+                    Debug.LogFormat("[Forget Me Maybe #{0}] Cannot use lower bound of 0. Using 1 instead.", _moduleId);
+                    settings.lowerBound = 1;
+                }
+                if (settings.lowerBound >= settings.upperBound)
+                {
+                    Debug.LogFormat("[Forget Me Maybe #{0}] Lower bound is greater than or equal to upper bound. Using default settings.", _moduleId);
+                    return new[] { _defaultLowerBound, _defaultUpperBound };
+                }
+                else
+                {
+                    Debug.LogFormat("[Forget Me Maybe #{0}] Using bounds of {1} and {2}.", _moduleId, settings.lowerBound, settings.upperBound);
+                    return new[] { settings.lowerBound, settings.upperBound };
+                }
+            }
+            else
+            {
+                Debug.LogFormat("[Forget Me Maybe #{0}] No settings detected. Using default settings.", _moduleId);
+                return new[] { _defaultLowerBound, _defaultUpperBound };
+            }
+        }
+        catch (JsonReaderException e)
+        {
+            Debug.LogFormat("[Forget Me Maybe #{0}] JSON reading failed with error: {1}. Using default settings.", _moduleId, e.Message);
+            return new[] { _defaultLowerBound, _defaultUpperBound };
+        }
+    }
+    private string GetMissionID()
+    {
+        try
+        {
+            Component gameplayState = GameObject.Find("GameplayState(Clone)").GetComponent("GameplayState");
+            Type type = gameplayState.GetType();
+            FieldInfo fieldMission = type.GetField("MissionToLoad", BindingFlags.Public | BindingFlags.Static);
+            return fieldMission.GetValue(gameplayState).ToString();
+        }
+        catch (NullReferenceException)
+        {
+            return "undefined";
+        }
+    }
 #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} press 1234567890 [Presses buttons 1234567890.] | You can use 'press' or 'submit'. Commands may contain spaces.";
 #pragma warning restore 414
