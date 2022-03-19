@@ -427,7 +427,8 @@ public class ForgetMeMaybeScript : MonoBehaviour
             yield break;
         yield return null;
         yield return "solve";
-        yield return "awardpointsonsolve " + _inputLength.ToString();
+        int score = (int)Math.Ceiling(_inputLength * 0.75f);
+        yield return "awardpointsonsolve " + score;
         foreach (int d in digits)
         {
             ButtonSels[(d + 9) % 10].OnInteract();
