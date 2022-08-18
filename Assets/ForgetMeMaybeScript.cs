@@ -44,6 +44,7 @@ public class ForgetMeMaybeScript : MonoBehaviour
     private int _inputLength;
     private bool _isInputting;
     private bool _hereWeGo = true;
+    private bool _canGenerate;
 
     private const int _defaultLowerBound = 45;
     private const int _defaultUpperBound = 60;
@@ -76,7 +77,13 @@ public class ForgetMeMaybeScript : MonoBehaviour
         var bounds = GetBounds();
         _lowerBound = bounds[0];
         _upperBound = bounds[1];
+        Module.OnActivate += Activate;
         StartCoroutine(Init());
+    }
+
+    private void Activate()
+    {
+        _canGenerate = true;
     }
 
     private KMSelectable.OnInteractHandler ButtonPress(int btn)
@@ -211,6 +218,8 @@ public class ForgetMeMaybeScript : MonoBehaviour
     {
         while (true)
         {
+            while (!_canGenerate)
+                yield return null;
             var waitTime = Rnd.Range(_lowerBound, _upperBound);
             var elapsed = 0f;
             while (elapsed < waitTime)
@@ -352,27 +361,26 @@ public class ForgetMeMaybeScript : MonoBehaviour
             ModSettingsJSON settings = JsonConvert.DeserializeObject<ModSettingsJSON>(ModSettings.Settings);
             if (settings != null)
             {
+                if (settings.lowerBound < 0 || settings.upperBound < 0)
+                {
+                    Debug.LogFormat("[Forget Me Maybe #{0}] Neither of the bounds can be set to negative. Using default settings.", _moduleId);
+                    return new[] { _defaultLowerBound, _defaultUpperBound };
+                }
                 if (settings.lowerBound == 0)
                 {
-                    Debug.LogFormat("[Forget Me Maybe #{0}] Cannot use lower bound of 0. Using 1 instead.", _moduleId);
-                    settings.lowerBound = 1;
+                    Debug.LogFormat("[Forget Me Maybe #{0}] Cannot use lower bound of 0. Using default settings.", _moduleId);
+                    return new[] { _defaultLowerBound, _defaultUpperBound };
                 }
                 if (settings.lowerBound >= settings.upperBound)
                 {
                     Debug.LogFormat("[Forget Me Maybe #{0}] Lower bound is greater than or equal to upper bound. Using default settings.", _moduleId);
                     return new[] { _defaultLowerBound, _defaultUpperBound };
                 }
-                else
-                {
-                    Debug.LogFormat("[Forget Me Maybe #{0}] Using bounds of {1} and {2}.", _moduleId, settings.lowerBound, settings.upperBound);
-                    return new[] { settings.lowerBound, settings.upperBound };
-                }
+                Debug.LogFormat("[Forget Me Maybe #{0}] Using bounds of {1} and {2}.", _moduleId, settings.lowerBound, settings.upperBound);
+                return new[] { settings.lowerBound, settings.upperBound };
             }
-            else
-            {
-                Debug.LogFormat("[Forget Me Maybe #{0}] No settings detected. Using default settings.", _moduleId);
-                return new[] { _defaultLowerBound, _defaultUpperBound };
-            }
+            Debug.LogFormat("[Forget Me Maybe #{0}] No settings detected. Using default settings.", _moduleId);
+            return new[] { _defaultLowerBound, _defaultUpperBound };
         }
         catch (JsonReaderException e)
         {

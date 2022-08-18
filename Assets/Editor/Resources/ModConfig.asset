@@ -17,7 +17,10 @@ MonoBehaviour:
   description: 'This one likes attention. In fact, it needs attention.
 
 
-    Made by Quinn Wuest'
+    Made by Quinn Wuest
+
+
+    The manual can be found [url=https://ktane.timwi.de/HTML/Forget%20Me%20Maybe.html]here[/url].'
   version: 1.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: beb39e4efcd5d0f4caf18afc02734fab, type: 3}
