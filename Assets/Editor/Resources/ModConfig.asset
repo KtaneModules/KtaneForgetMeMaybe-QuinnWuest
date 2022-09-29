@@ -14,13 +14,10 @@ MonoBehaviour:
   id: ForgetMeMaybe
   title: Forget Me Maybe
   author: Quinn Wuest
-  description: 'This one likes attention. In fact, it needs attention.
-
-
-    Made by Quinn Wuest
-
-
-    The manual can be found [url=https://ktane.timwi.de/HTML/Forget%20Me%20Maybe.html]here[/url].'
+  description: "This one likes attention. In fact, it needs attention.\r\n\r\nMade
+    by Quinn Wuest\r\n\r\n[url=https://ktane.timwi.de/HTML/Forget%20Me%20Maybe.html]Manual
+    HTML[/url].\r\n[url=https://ktane.timwi.de/PDF/Forget%20Me%20Maybe.pdf]Manual
+    PDF[/url]."
   version: 1.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: beb39e4efcd5d0f4caf18afc02734fab, type: 3}

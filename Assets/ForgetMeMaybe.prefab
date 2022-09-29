@@ -4149,9 +4149,9 @@ MonoBehaviour:
   m_Script: {fileID: -289456416, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Settings: "{ \t \t \t\"lowerBound\": 45, \t\"upperBound\": 60, \t\"note\": \"Default:
-    45-60 seconds. If the times are equal, or the lower bound is greater than the
-    upper bound, the settings will revert to default.\" }"
+  Settings: '{ "lowerBound": 45, "upperBound": 75, "note": "Default: 45-60 seconds.
+    If the times are equal, or the lower bound is greater than the upper bound, the
+    settings will revert to default." }'
   SettingsPath: 
 --- !u!114 &114652463463533164
 MonoBehaviour:

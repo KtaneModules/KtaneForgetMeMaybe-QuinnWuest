@@ -29,6 +29,7 @@ public class ForgetMeMaybeScript : MonoBehaviour
     private bool _moduleSolved;
 
     private string[] _ignoredModules;
+    private bool _hasFocus;
     private int _solveCount;
     private int _currentSolves;
     private int _currentStage;
@@ -47,7 +48,7 @@ public class ForgetMeMaybeScript : MonoBehaviour
     private bool _canGenerate;
 
     private const int _defaultLowerBound = 45;
-    private const int _defaultUpperBound = 60;
+    private const int _defaultUpperBound = 75;
     private float _lowerBound = _defaultLowerBound;
     private float _upperBound = _defaultUpperBound;
 
@@ -63,6 +64,8 @@ public class ForgetMeMaybeScript : MonoBehaviour
         _moduleId = _moduleIdCounter++;
         for (int i = 0; i < ButtonSels.Length; i++)
             ButtonSels[i].OnInteract += ButtonPress(i);
+        GetComponent<KMSelectable>().OnFocus += delegate () { _hasFocus = true; };
+        GetComponent<KMSelectable>().OnDefocus += delegate () { _hasFocus = false; };
 
         DisplayScreen.text = "";
         InputScreen.text = "";
@@ -209,6 +212,10 @@ public class ForgetMeMaybeScript : MonoBehaviour
 
     private void Update()
     {
+        if (_hasFocus)
+            for (int i = 0; i <= 9; i++)
+                if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
+                    ButtonSels[(i + 9) % 10].OnInteract();
         if (_moduleSolved)
             return;
         _currentSolves = BombInfo.GetSolvedModuleNames().Count(i => !_ignoredModules.Contains(i));
